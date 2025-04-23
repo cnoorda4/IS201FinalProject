@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Target Click Game</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        #gameContainer { position: relative; width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; }
+        #gameArea {
+            position: relative; width: 400px; height: 400px;
+            background: lightblue; border: 2px solid #000; overflow: hidden; display: none;
+        }
+        .target {
+            width: 60px; height: 60px; position: absolute;
+            border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .target::before {
+            content: ""; width: 100%; height: 100%;
+            background: radial-gradient(circle, white 10%, red 30%, white 50%, red 70%);
+            border-radius: 50%;
+        }
+        #startBtn {
+            font-size: 20px; padding: 10px 20px; cursor: pointer;
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        /* Navigation Styling */
+  nav {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+  }
+  
+  .nav-item {
+    display: inline-block;
+    margin: 0 15px;
+  }
+  
+  .nav-link {
+    text-decoration: none;
+    font-size: 18px;
+    color: #333;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    transition: 0.3s;
+  }
+  
+  .nav-link:hover {
+    background-color: #007bff;
+    color: #fff;
+  }
+    </style>
+</head>
+<body>
+    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="index.html">Home</a></li>
+    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="scratch.html">Scratch Page</a></li>
+    <li class="nav-item"><a class="nav-link px-lg-3 py-3 py-lg-4" href="webapp.html">Web App</a></li>
+    <div id="gameContainer">
+        <h1>Click the Targets!</h1>
+        <p>Score: <span id="score">0</span></p>
+        <p>Time Left: <span id="time">30</span> sec</p>
+        <button id="startBtn">Start Game</button>
+        <div id="gameArea"></div>
+    </div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 30;
+        let gameRunning = false;
+        
+        function createTarget() {
+            if (!gameRunning) return;
+            
+            const target = document.createElement("div");
+            target.classList.add("target");
+            target.style.top = Math.random() * 340 + "px";
+            target.style.left = Math.random() * 340 + "px";
+            target.onclick = function(event) {
+                event.stopPropagation(); // Prevent missed click trigger
+                score++;
+                document.getElementById("score").innerText = score;
+                target.remove();
+            };
+            document.getElementById("gameArea").appendChild(target);
+            setTimeout(() => target.remove(), 2000);
+        }
+
+        function startGame() {
+            score = 0;
+            timeLeft = 30;
+            gameRunning = true;
+            document.getElementById("score").innerText = score;
+            document.getElementById("time").innerText = timeLeft;
+            document.getElementById("gameArea").style.display = "block";
+            document.getElementById("startBtn").style.display = "none";
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById("time").innerText = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    endGame();
+                }
+            }, 1000);
+
+            setInterval(createTarget, 800);
+        }
+
+        function endGame() {
+            gameRunning = false;
+            alert("Game Over! Your score: " + score);
+            document.getElementById("startBtn").style.display = "block";
+            document.getElementById("gameArea").style.display = "none";
+        }
+
+        document.getElementById("startBtn").addEventListener("click", startGame);
+        document.getElementById("gameArea").addEventListener("click", function(event) {
+            if (gameRunning) endGame(); // If user clicks inside game area but misses targets
+        });
+    </script>
+</body>
+</html>
